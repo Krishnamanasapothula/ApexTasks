@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyWeb Space</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        background: #f2f2f2;
+        color: #333;
+        padding: 10px;
+      }
+
+      header {
+        background: #006666;
+        color: #fff;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      nav a {
+        color: #fff;
+        margin-left: 15px;
+        text-decoration: none;
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 30px;
+        margin: 20px 0;
+      }
+
+      section {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+      }
+
+      form input,
+      form textarea,
+      form button {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+      }
+
+      form button {
+        background: #006666;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+      }
+
+      form .error {
+        color: red;
+      }
+
+      #taskList li {
+        background: #eee;
+        padding: 10px;
+        margin-top: 10px;
+        border-left: 5px solid #006666;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      #taskList li.completed {
+        text-decoration: line-through;
+        color: gray;
+      }
+
+      footer {
+        text-align: center;
+        padding: 10px;
+        background: #006666;
+        color: white;
+        margin-top: 30px;
+      }
+
+      @media (min-width: 768px) {
+        main {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>MyWeb Space</h1>
+      <nav>
+        <a href="#contact">Contact</a>
+        <a href="#todo">To-Do List</a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Contact Form -->
+      <section id="contact">
+        <h2>Contact Me</h2>
+        <form id="contactForm">
+          <input type="text" id="name" placeholder="Your Name" required />
+          <input type="email" id="email" placeholder="Your Email" required />
+          <textarea id="message" placeholder="Your Message" required></textarea>
+          <button type="submit">Send</button>
+          <p id="formError" class="error"></p>
+        </form>
+      </section>
+
+      <!-- To-Do List -->
+      <section id="todo">
+        <h2>To-Do List</h2>
+        <input type="text" id="taskInput" placeholder="Enter a task" />
+        <button onclick="addTask()">Add Task</button>
+        <ul id="taskList"></ul>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 MyWeb Space</p>
+    </footer>
+
+    <script>
+      // Contact form validation
+      document
+        .getElementById("contactForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const name = document.getElementById("name").value.trim();
+          const email = document.getElementById("email").value.trim();
+          const message = document.getElementById("message").value.trim();
+          const errorEl = document.getElementById("formError");
+
+          if (!name || !email || !message) {
+            errorEl.textContent = "Please fill in all fields.";
+            return;
+          }
+
+          const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+          if (!email.match(emailPattern)) {
+            errorEl.textContent = "Please enter a valid email.";
+            return;
+          }
+
+          errorEl.textContent = "";
+          alert("Form submitted successfully!");
+          document.getElementById("contactForm").reset();
+        });
+
+      // To-Do List functionality
+      function addTask() {
+        const taskInput = document.getElementById("taskInput");
+        const taskText = taskInput.value.trim();
+        if (!taskText) return;
+
+        const li = document.createElement("li");
+        li.textContent = taskText;
+
+        const removeBtn = document.createElement("button");
+        removeBtn.textContent = "❌";
+        removeBtn.onclick = () => li.remove();
+
+        li.onclick = () => li.classList.toggle("completed");
+        li.appendChild(removeBtn);
+
+        document.getElementById("taskList").appendChild(li);
+        taskInput.value = "";
+      }
+    </script>
+  </body>
+</html>
