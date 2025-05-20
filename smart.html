@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Dashboard</title>
+    <style>
+      :root {
+        --bg-color: #f0f0f0;
+        --text-color: #333;
+        --accent-color: #3498db;
+      }
+      [data-theme="dark"] {
+        --bg-color: #121212;
+        --text-color: #f0f0f0;
+        --accent-color: #9b59b6;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        padding: 20px;
+      }
+      .container {
+        max-width: 900px;
+        margin: auto;
+        display: grid;
+        gap: 20px;
+      }
+      header,
+      section {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: var(--bg-color);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        margin-bottom: 10px;
+      }
+      .carousel {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+      }
+      .carousel img {
+        width: 100%;
+        max-width: 300px;
+        margin-right: 10px;
+        scroll-snap-align: center;
+        border-radius: 10px;
+      }
+      .theme-toggle {
+        margin-bottom: 20px;
+      }
+      @media (max-width: 768px) {
+        .carousel {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <button class="theme-toggle">Toggle Dark/Light Mode</button>
+
+      <header>
+        <h2>🌤️ Live Weather</h2>
+        <input type="text" id="city" placeholder="Enter city" />
+        <button onclick="getWeather()">Get Weather</button>
+        <p id="weather"></p>
+      </header>
+
+      <section>
+        <h2>😂 Random Joke</h2>
+        <p id="joke">Loading joke...</p>
+        <button onclick="fetchJoke()">Get New Joke</button>
+      </section>
+
+      <section>
+        <h2>🖼️ Image Carousel</h2>
+        <div class="carousel">
+          <img src="/assests/birds.jpg" alt="Image 1" />
+          <img src="/assests/bridge.jpg" alt="Image 2" />
+          <img src="/assests/world.jpg" alt="Image 3" />
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Mini Quiz</h2>
+        <form id="quiz">
+          <p>1. What is the capital of France?</p>
+          <input type="radio" name="q1" value="Paris" /> Paris<br />
+          <input type="radio" name="q1" value="London" /> London<br />
+          <input type="radio" name="q1" value="Berlin" /> Berlin<br /><br />
+
+          <p>2. Which language runs in a web browser?</p>
+          <input type="radio" name="q2" value="Python" /> Python<br />
+          <input type="radio" name="q2" value="JavaScript" /> JavaScript<br />
+          <input type="radio" name="q2" value="C++" /> C++<br /><br />
+
+          <button type="submit">Submit</button>
+        </form>
+        <p id="quiz-result"></p>
+      </section>
+    </div>
+
+    <script>
+      // Dark/Light mode toggle
+      const toggleBtn = document.querySelector(".theme-toggle");
+      toggleBtn.addEventListener("click", () => {
+        document.body.toggleAttribute("data-theme", "dark");
+        const currentTheme = document.body.getAttribute("data-theme");
+        document.body.setAttribute(
+          "data-theme",
+          currentTheme === "dark" ? "" : "dark"
+        );
+      });
+
+      // Fetch weather
+      async function getWeather() {
+        const city = document.getElementById("city").value;
+        const res = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=YOUR_API_KEY&units=metric`
+        );
+        const data = await res.json();
+        const weatherText = `${data.name}: ${data.main.temp}°C, ${data.weather[0].description}`;
+        document.getElementById("weather").innerText = weatherText;
+      }
+
+      // Fetch joke
+      async function fetchJoke() {
+        const res = await fetch("https://v2.jokeapi.dev/joke/Any?type=single");
+        const data = await res.json();
+        document.getElementById("joke").innerText = data.joke;
+      }
+      fetchJoke();
+
+      // Mini quiz
+      document.getElementById("quiz").addEventListener("submit", (e) => {
+        e.preventDefault();
+        let score = 0;
+        if (
+          document.querySelector('input[name="q1"]:checked')?.value === "Paris"
+        )
+          score++;
+        if (
+          document.querySelector('input[name="q2"]:checked')?.value ===
+          "JavaScript"
+        )
+          score++;
+        document.getElementById(
+          "quiz-result"
+        ).innerText = `Your Score: ${score}/2`;
+      });
+    </script>
+  </body>
+</html>
