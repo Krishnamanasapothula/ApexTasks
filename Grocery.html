@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Grocery Store</title>
+    <style>
+      /* General Reset */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px 10px 60px;
+      }
+
+      /* Navbar */
+      nav {
+        background-color: #4caf50;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      nav .logo {
+        font-size: 1.8rem;
+        font-weight: bold;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      nav ul {
+        display: flex;
+        list-style: none;
+        gap: 20px;
+      }
+
+      nav ul li {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      nav ul li:hover {
+        text-decoration: underline;
+      }
+
+      nav .cart {
+        position: relative;
+        cursor: pointer;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      nav .cart span {
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      /* Cart dropdown */
+      #cartDropdown {
+        position: absolute;
+        top: 40px;
+        right: 0;
+        background: white;
+        color: #333;
+        width: 280px;
+        max-height: 320px;
+        overflow-y: auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+        display: none;
+        flex-direction: column;
+        padding: 10px 15px;
+        z-index: 20;
+      }
+
+      #cartDropdown h3 {
+        text-align: center;
+        margin-bottom: 12px;
+        color: #2e7d32;
+      }
+
+      #cartItems {
+        list-style: none;
+        max-height: 220px;
+        overflow-y: auto;
+        padding-right: 5px;
+      }
+
+      #cartItems li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 1rem;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 6px;
+      }
+
+      #cartItems li button.removeBtn {
+        background: #e53935;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        padding: 3px 7px;
+        font-size: 0.9rem;
+        transition: background 0.3s ease;
+      }
+
+      #cartItems li button.removeBtn:hover {
+        background: #b71c1c;
+      }
+
+      #cartDropdown p.totalPrice {
+        font-weight: 700;
+        text-align: right;
+        margin-top: 12px;
+        font-size: 1.1rem;
+        color: #388e3c;
+      }
+
+      /* Sections */
+      section {
+        max-width: 900px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        padding: 2.5rem 2rem;
+        display: none;
+      }
+
+      /* Show the first section by default */
+      section.active {
+        display: block;
+      }
+
+      /* Home/Product Section */
+      .product-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+      }
+
+      .product-card {
+        background-color: white;
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 250px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .product-card h3 {
+        margin-bottom: 10px;
+        color: #2e7d32;
+      }
+
+      .product-card p {
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+
+      .product-card button {
+        margin-top: auto;
+        padding: 8px 12px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+      }
+
+      .product-card button:hover {
+        background-color: #388e3c;
+      }
+
+      /* About and Contact Sections */
+      .about p {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        text-align: justify;
+        color: #333;
+      }
+
+      .about h2,
+      .contact h2 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        color: #2e7d32;
+        text-align: center;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+
+      .contact {
+        text-align: center;
+        color: #333;
+      }
+
+      .contact .contact-item {
+        display: flex;
+        align-items: center;
+        font-size: 1.1rem;
+        margin-bottom: 1.25rem;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .contact .contact-item .icon {
+        font-size: 1.5rem;
+        color: #4caf50;
+      }
+
+      /* Contact links styling */
+      .contact a {
+        color: #388e3c;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .contact a:hover {
+        text-decoration: underline;
+      }
+
+      /* Login Modal */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        text-align: center;
+        width: 320px;
+      }
+
+      .modal-content input {
+        width: 90%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+      }
+
+      .modal-content button {
+        background-color: #4caf50;
+        color: white;
+        padding: 12px;
+        border: none;
+        width: 100%;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: background-color 0.3s ease;
+      }
+
+      .modal-content button:hover {
+        background-color: #388e3c;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .product-grid {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        nav ul {
+          gap: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+      <div class="modal-content">
+        <h2>Login</h2>
+        <input type="text" placeholder="Username" id="username" />
+        <input type="password" placeholder="Password" id="password" />
+        <button onclick="login()">Login</button>
+      </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav>
+      <div class="logo" onclick="showSection('home')">Grocery Store</div>
+      <ul>
+        <li onclick="showSection('home')">Products</li>
+        <li onclick="showSection('about')">About</li>
+        <li onclick="showSection('contact')">Contact</li>
+      </ul>
+      <div class="cart" onclick="toggleCart()">
+        🛒 Cart <span id="cartTotal">₹0</span>
+        <div id="cartDropdown">
+          <h3>Your Cart</h3>
+          <ul id="cartItems"></ul>
+          <p class="totalPrice">Total: ₹<span id="total">0</span></p>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sections -->
+
+    <!-- Home / Product Section -->
+    <section id="home" class="active">
+      <input
+        type="text"
+        id="searchBar"
+        placeholder="Search for products..."
+        onkeyup="filterProducts()"
+        style="
+          width: 100%;
+          padding: 12px;
+          margin-bottom: 20px;
+          border-radius: 8px;
+          border: 1px solid #ccc;
+          font-size: 1rem;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        "
+      />
+      <div class="product-grid">
+        <div class="product-card">
+          <img src="/images/milk packet.jpg" alt="milk" />
+          <h3>Milk</h3>
+          <p>Quantity: 1 Ltr</p>
+          <p>Price: ₹60</p>
+          <button onclick="addToCart('Milk', 60)">Add to Cart</button>
+        </div>
+        <div class="product-card">
+          <img src="/images/sugar.jpg" alt="Sugar" />
+          <h3>Sugar</h3>
+          <p>Quantity: 1 Kg</p>
+          <p>Price: ₹45</p>
+          <button onclick="addToCart('Sugar', 45)">Add to Cart</button>
+        </div>
+        <div class="product-card">
+          <img src="/images/oil.jpg" alt="oil" width="200px" height="200px" />
+          <h3>Oil</h3>
+          <p>Quantity: 500 ml</p>
+          <p>Price: ₹75</p>
+          <button onclick="addToCart('Oil', 75)">Add to Cart</button>
+        </div>
+        <div class="product-card">
+          <img src="/images/wheat flour.jpg" alt="Wheatflour" />
+          <h3>Wheat flour</h3>
+          <p>Quantity: 1 kg</p>
+          <p>Price: ₹45</p>
+          <button onclick="addToCart('Wheat flour', 45)">Add to Cart</button>
+        </div>
+        <div class="product-card">
+          <img src="/images/santoor soaps.jpg" alt="Santoor soaps" />
+          <h3>Santoor soaps</h3>
+          <p>Quantity:6 pack-150g</p>
+          <p>Price: ₹190</p>
+          <button onclick="addToCart('Santoor soaps', 190)">Add to Cart</button>
+        </div>
+        <div class="product-card">
+          <img
+            src="/images/meera shampoo.jpg"
+            alt="Meera shampoo"
+            width="200px"
+            height="200px"
+          />
+          <h3>Meera Shampoo</h3>
+          <p>Quantity:200ml</p>
+          <p>Price: ₹100</p>
+          <button onclick="addToCart('Meera Shampoo', 100)">Add to Cart</button>
+        </div>
+        <div class="product-card">
+          <img src="/images/tomatoes.jpg" alt="Tomatoes" />
+          <h3>Tomatoes</h3>
+          <p>Quantity:1 kg</p>
+          <p>Price: ₹50</p>
+          <button onclick="addToCart('Tomatoes', 50)">Add to Cart</button>
+        </div>
+        <div class="product-card">
+          <img src="/images/onions.jpg" alt="onions" />
+          <h3>onions</h3>
+          <p>Quantity:1 kg</p>
+          <p>Price: ₹30</p>
+          <button onclick="addToCart('onions', 30)">Add to Cart</button>
+        </div>
+        <div class="product-card">
+          <img src="images/turmeric powder.jpg" alt="Tumeric powder" />
+          <h3>Turmeric Powder</h3>
+          <p>Quantity:20 grams</p>
+          <p>Price: ₹45</p>
+          <button onclick="addToCart('Turmeric Powder', 45)">
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+      <h2>About Us</h2>
+      <p>
+        Welcome to <strong>Grocery Store</strong> – your one-stop shop for fresh
+        groceries delivered to your door. We provide high-quality products
+        including milk, sugar, oil, and more at affordable prices.
+      </p>
+      <p>
+        Founded in 2024, we aim to bring convenience and quality together. Our
+        store values freshness, affordability, and customer satisfaction.
+      </p>
+      <p>
+        We support daily needs with reliable delivery and an easy-to-use
+        shopping experience.
+      </p>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+      <h2>Contact Us</h2>
+      <div class="contact-item">
+        <span class="icon">📧</span>
+        <a href="mailto:support@grocerystore.com">support@grocerystore.com</a>
+      </div>
+      <div class="contact-item">
+        <span class="icon">📞</span>
+        <a href="tel:+919876543210">+91 9876543210</a>
+      </div>
+      <div class="contact-item">
+        <span class="icon">📍</span>
+        Hyderabad, Telangana, India
+      </div>
+    </section>
+
+    <script>
+      // Show login modal on page load
+      window.onload = function () {
+        document.getElementById("loginModal").style.display = "flex";
+      };
+
+      // Login function
+      function login() {
+        let user = document.getElementById("username").value.trim();
+        let pass = document.getElementById("password").value.trim();
+
+        if (user && pass) {
+          alert("Welcome " + user + "!");
+          document.getElementById("loginModal").style.display = "none";
+        } else {
+          alert("Please enter username and password.");
+        }
+      }
+
+      // Section show/hide
+      function showSection(sectionId) {
+        // Hide cart dropdown if open
+        document.getElementById("cartDropdown").style.display = "none";
+
+        const sections = document.querySelectorAll("section");
+        sections.forEach((sec) => {
+          if (sec.id === sectionId) {
+            sec.classList.add("active");
+          } else {
+            sec.classList.remove("active");
+          }
+        });
+      }
+
+      // Cart data
+      let cart = [];
+      let total = 0;
+
+      // Add item to cart
+      function addToCart(name, price) {
+        // Check if item already exists, increment quantity if yes
+        const existingItem = cart.find((item) => item.name === name);
+        if (existingItem) {
+          existingItem.qty++;
+          existingItem.priceTotal += price;
+        } else {
+          cart.push({ name: name, price: price, qty: 1, priceTotal: price });
+        }
+        updateCartUI();
+      }
+
+      // Remove item from cart
+      function removeFromCart(name) {
+        const index = cart.findIndex((item) => item.name === name);
+        if (index > -1) {
+          if (cart[index].qty > 1) {
+            cart[index].qty--;
+            cart[index].priceTotal -= cart[index].price;
+          } else {
+            cart.splice(index, 1);
+          }
+        }
+        updateCartUI();
+      }
+
+      // Update cart UI
+      function updateCartUI() {
+        const cartItemsUl = document.getElementById("cartItems");
+        cartItemsUl.innerHTML = "";
+
+        total = 0;
+        cart.forEach((item) => {
+          total += item.priceTotal;
+          const li = document.createElement("li");
+          li.innerHTML = `
+            ${item.name} x${item.qty} - ₹${item.priceTotal}
+            <button class="removeBtn" onclick="removeFromCart('${item.name}')">Remove</button>
+          `;
+          cartItemsUl.appendChild(li);
+        });
+
+        document.getElementById("total").textContent = total;
+        document.getElementById("cartTotal").textContent = `₹${total}`;
+
+        // If cart empty, show message
+        if (cart.length === 0) {
+          const li = document.createElement("li");
+          li.textContent = "Cart is empty.";
+          cartItemsUl.appendChild(li);
+        }
+      }
+
+      // Toggle cart dropdown visibility
+      function toggleCart() {
+        const cartDropdown = document.getElementById("cartDropdown");
+        if (cartDropdown.style.display === "flex") {
+          cartDropdown.style.display = "none";
+        } else {
+          cartDropdown.style.display = "flex";
+        }
+      }
+
+      // Close cart if clicked outside
+      window.addEventListener("click", function (event) {
+        const cartDropdown = document.getElementById("cartDropdown");
+        const cartIcon = document.querySelector(".cart");
+        if (
+          !cartDropdown.contains(event.target) &&
+          !cartIcon.contains(event.target)
+        ) {
+          cartDropdown.style.display = "none";
+        }
+      });
+      // Filter products by search input
+      function filterProducts() {
+        const input = document.getElementById("searchBar").value.toLowerCase();
+        const cards = document.querySelectorAll(".product-card");
+
+        cards.forEach((card) => {
+          const name = card.querySelector("h3").textContent.toLowerCase();
+          if (name.includes(input)) {
+            card.style.display = "flex";
+          } else {
+            card.style.display = "none";
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
